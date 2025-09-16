@@ -32,3 +32,29 @@ async function showEarthquakes() {
 }
 
 showEarthquakes();
+function drawMagnitudeChart(quakes) {
+  const ctx = document.getElementById('magnitudeChart').getContext('2d');
+  const bins = [0, 2, 4, 6, 8];
+  const counts = [0, 0, 0, 0, 0];
+
+  quakes.forEach(q => {
+    const mag = q.properties.mag;
+    if (mag < 2) counts[0]++;
+    else if (mag < 4) counts[1]++;
+    else if (mag < 6) counts[2]++;
+    else if (mag < 8) counts[3]++;
+    else counts[4]++;
+  });
+
+  new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels: ['0–2', '2–4', '4–6', '6–8', '8+'],
+      datasets: [{
+        label: 'Earthquake Count',
+        data: counts,
+        backgroundColor: 'rgba(54, 162, 235, 0.6)'
+      }]
+    }
+  });
+}
