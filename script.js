@@ -13,6 +13,7 @@ async function showEarthquakes() {
   const res = await fetch(url);
   const data = await res.json();
 
+  // Add markers to the map
   data.features.forEach((eq) => {
     const coords = eq.geometry.coordinates; // [longitude, latitude, depth]
     const mag = eq.properties.mag;
@@ -29,15 +30,17 @@ async function showEarthquakes() {
       .bindPopup(`<b>Magnitude:</b> ${mag}<br><b>Location:</b> ${place}`)
       .addTo(map);
   });
+
+  // Draw the histogram chart after loading data
+  drawMagnitudeChart(data.features);
 }
 
-showEarthquakes();
+// Function to draw magnitude distribution chart
 function drawMagnitudeChart(quakes) {
   const ctx = document.getElementById('magnitudeChart').getContext('2d');
-  const bins = [0, 2, 4, 6, 8];
-  const counts = [0, 0, 0, 0, 0];
+  const counts = [0, 0, 0, 0, 0]; // bins for 0–2, 2–4, 4–6, 6–8, 8+
 
-  quakes.forEach(q => {
+  quakes.forEach((q) => {
     const mag = q.properties.mag;
     if (mag < 2) counts[0]++;
     else if (mag < 4) counts[1]++;
@@ -53,8 +56,26 @@ function drawMagnitudeChart(quakes) {
       datasets: [{
         label: 'Earthquake Count',
         data: counts,
-        backgroundColor: 'rgba(54, 162, 235, 0.6)'
+        backgroundColor: [
+          'rgba(0, 200, 83, 0.6)',   // green
+          'rgba(255, 193, 7, 0.6)',  // yellow
+          'rgba(255, 87, 34, 0.6)',  // orange
+          'rgba(244, 67, 54, 0.6)',  // red
+          'rgba(156, 39, 176, 0.6)'  // purple
+        ],
+        borderColor: '#333',
+        borderWidth: 1
       }]
+    },
+    options: {
+      responsive: true,
+      plugins: {
+        legend: { display: false },
+        title: { display: true, text: 'Earthquake Magnitude Distribution' }
+      }
     }
   });
 }
+
+// Call main function
+showEarthquakes();
